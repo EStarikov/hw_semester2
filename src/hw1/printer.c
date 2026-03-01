@@ -42,9 +42,10 @@ char** getWords(const char* line, int len, int count)
         if (k < count) {
             if ((line[i] == ',' && quotes == 0) || line[i] == '\0') {
                 if (j != 0) {
-                    words[k] = (char*)malloc(sizeof(char) * j);
+                    words[k] = (char*)malloc(sizeof(char) * (j + 1));
                     if (words[k] != NULL && word != NULL) {
-                        strncpy(words[k], word, len);
+                        strncpy(words[k], word, j);
+                        words[k][j] = '\0';
                     } else {
                         for (int l = 0; l < k; l++) {
                             free(words[l]);
@@ -82,6 +83,14 @@ char** getWords(const char* line, int len, int count)
     return words;
 }
 
+void freeWords(char** words, int count)
+{
+    for (int i = 0; i < count; i++) {
+        free(words[i]);
+    }
+    free(words);
+}
+
 int myGetline(char** line, FILE* file)
 {
     int n = 128;
@@ -108,4 +117,14 @@ int myGetline(char** line, FILE* file)
         return -1;
     }
     return i + 1;
+}
+
+void maxWord(char** words, int* maxLen, int count)
+{
+    for (int i = 0; i < count; i++) {
+        int l = (int)strlen(words[i]);
+        if (l > maxLen[i]) {
+            maxLen[i] = l;
+        }
+    }
 }

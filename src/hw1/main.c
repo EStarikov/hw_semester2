@@ -10,14 +10,19 @@ int main()
     }
     char* line = NULL;
     int l = myGetline(&line, input);
+    int count = countWords(line, l);
+    int* maxs = (int*)calloc(count, sizeof(int));
     while (l != -1) {
-        int count = countWords(line, l);
-        printf("%d %d\n", l, count);
+        char** words = getWords(line, l, count);
+        maxWord(words, maxs, count);
+        freeWords(words, count);
         free(line);
         l = myGetline(&line, input);
     }
+    for (int i = 0; i < count; i++) {
+        printf("%d\t", maxs[i]);
+    }
+    free(maxs);
     free(line);
-    line = NULL;
-    fclose(input);
     return 0;
 }
