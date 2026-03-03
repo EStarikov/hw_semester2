@@ -4,6 +4,34 @@
 #include <stdlib.h>
 #include <string.h>
 
+int myGetline(char** line, FILE* file)
+{
+    int n = 128;
+    int i = 0;
+    *line = (char*)malloc(sizeof(char) * n);
+    if (*line == NULL) {
+        return -1;
+    }
+    int c = fgetc(file);
+    while (c != '\n' && c != EOF) {
+        (*line)[i] = (char)c;
+        i++;
+        c = fgetc(file);
+        if (i == n - 2) {
+            n *= 2;
+            *line = (char*)realloc(*line, sizeof(char) * n);
+            if (*line == NULL) {
+                return -1;
+            }
+        }
+    }
+    (*line)[i] = '\0';
+    if (c == EOF) {
+        return -1;
+    }
+    return i + 1;
+}
+
 int countWords(const char* line, int len)
 {
     bool quotes = 0;
@@ -91,34 +119,6 @@ void freeWords(char** words, int count)
     free(words);
 }
 
-int myGetline(char** line, FILE* file)
-{
-    int n = 128;
-    int i = 0;
-    *line = (char*)malloc(sizeof(char) * n);
-    if (*line == NULL) {
-        return -1;
-    }
-    int c = fgetc(file);
-    while (c != '\n' && c != EOF) {
-        (*line)[i] = (char)c;
-        i++;
-        c = fgetc(file);
-        if (i == n - 2) {
-            n *= 2;
-            *line = (char*)realloc(*line, sizeof(char) * n);
-            if (*line == NULL) {
-                return -1;
-            }
-        }
-    }
-    (*line)[i] = '\0';
-    if (c == EOF) {
-        return -1;
-    }
-    return i + 1;
-}
-
 void maxWord(char** words, int* maxLen, int count)
 {
     for (int i = 0; i < count; i++) {
@@ -127,4 +127,11 @@ void maxWord(char** words, int* maxLen, int count)
             maxLen[i] = l;
         }
     }
+}
+
+bool isNumber(char* word)
+{
+    char* endptr;
+    strtod(word, &endptr);
+    return *endptr == '\0';
 }
