@@ -34,7 +34,7 @@ int main()
     l = myGetline(&line, input);
     while (l != -1) {
         char** words = getWords(line, l, count);
-        char* text = (char*)malloc(sizeof(char) * s);
+        char* text = (char*)malloc(sizeof(char) * (s + 3 * count + 1));
         if (text == NULL) {
             free(maxs);
             return -1;
@@ -43,14 +43,14 @@ int main()
         for (int i = 0; i < count; i++) {
             int d = maxs[i] - (int)strlen(words[i]);
             if (isNumber(words[i])) {
-                pos += sprintf(text + pos, "|");
+                pos += sprintf(text + pos, "| ");
                 for (int j = 0; j < d; j++) {
                     pos += sprintf(text + pos, " ");
                 }
-                pos += sprintf(text + pos, "%s", words[i]);
+                pos += sprintf(text + pos, "%s ", words[i]);
             } else {
-                pos += sprintf(text + pos, "|");
-                pos += sprintf(text + pos, "%s", words[i]);
+                pos += sprintf(text + pos, "| ");
+                pos += sprintf(text + pos, "%s ", words[i]);
                 for (int j = 0; j < d; j++) {
                     pos += sprintf(text + pos, " ");
                 }

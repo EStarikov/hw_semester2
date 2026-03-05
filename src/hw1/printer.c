@@ -47,17 +47,25 @@ int countWords(const char* line, int len)
     return count;
 }
 
-char** getWords(const char* line, int len, int count)
+char** getWords(const char* line, int len, int numOfColumns)
 {
-    char** words = (char**)malloc(sizeof(char*) * count);
+    char** words = (char**)malloc(sizeof(char*) * numOfColumns);
     if (words == NULL) {
         return NULL;
     }
     char* word;
-    if (len > 0) {
-        word = (char*)malloc(sizeof(char) * len);
+    if (len <= 0) {
+        words[0] = (char*)malloc(1);
+        if (words[0] != NULL) {
+            words[0][0] = '\0';
+            return words;
+        } else {
+            free(words[0]);
+            free(words);
+            return NULL;
+        }
     } else {
-        word = (char*)malloc(1);
+        word = (char*)malloc(sizeof(char) * len);
     }
     if (word == NULL) {
         free(words);
@@ -67,7 +75,7 @@ char** getWords(const char* line, int len, int count)
     int j = 0;
     int k = 0;
     for (int i = 0; i < len; i++) {
-        if (k < count) {
+        if (k < numOfColumns) {
             if ((line[i] == ',' && quotes == 0) || line[i] == '\0') {
                 if (j != 0) {
                     words[k] = (char*)malloc(sizeof(char) * (j + 1));
@@ -111,20 +119,23 @@ char** getWords(const char* line, int len, int count)
     return words;
 }
 
-void freeWords(char** words, int count)
+void freeWords(char** words, int numOfColumns)
 {
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < numOfColumns; i++) {
         free(words[i]);
     }
     free(words);
 }
 
-void maxWord(char** words, int* maxLen, int count)
+void maxWord(char** words, int* maxs, int numOfColumns)
 {
-    for (int i = 0; i < count; i++) {
+    if (words == NULL) {
+        return;
+    }
+    for (int i = 0; i < numOfColumns; i++) {
         int l = (int)strlen(words[i]);
-        if (l > maxLen[i]) {
-            maxLen[i] = l;
+        if (l > maxs[i]) {
+            maxs[i] = l;
         }
     }
 }
@@ -134,4 +145,98 @@ bool isNumber(char* word)
     char* endptr;
     strtod(word, &endptr);
     return *endptr == '\0';
+}
+
+int addToTable(char**** table, int** maxs, FILE* file, int* numOfColumns)
+{
+    char* line = NULL;
+    int l = myGetline(&line, file);
+    *numOfColumns = countWords(line, l);
+    *maxs = (int*)calloc(*numOfColumns, sizeof(int));
+    if (*maxs == NULL) {
+        free(line);
+        line = NULL;
+        return -1;
+    }
+    int numOfLines = 128;
+    *table = (char***)malloc(sizeof(char**) * numOfLines);
+    if (table == NULL) {
+        free(line);
+        free(*maxs);
+        line = NULL;
+        *maxs = NULL;
+        return -1;
+    }
+    int numOfThisLine = 0;
+    while (l != -1) {
+        (*table)[numOfThisLine] = getWords(line, l, *numOfColumns);
+        if ((*table)[numOfThisLine] != NULL) {
+            maxWord((*table)[numOfThisLine], *maxs, *numOfColumns);
+        } else {
+            free(line);
+            free(*maxs);
+            line = NULL;
+            *maxs = NULL;
+            return -1;
+        }
+        numOfThisLine += 1;
+        if (numOfThisLine == numOfLines - 1) {
+            numOfLines *= 2;
+            *table = (char***)realloc(*table, sizeof(char**) * numOfLines);
+            if (*table == NULL) {
+                return -1;
+            }
+        }
+        free(line);
+        l = myGetline(&line, file);
+    }
+    free(line);
+    return numOfThisLine - 1;
+}
+
+void freeTable(char*** table, int numOfColumns, int numOfLines)
+{
+    for (int i = 0; i < numOfLines; i++) {
+        freeWords(table[i], numOfColumns);
+    }
+    free(table);
+}
+
+int print(char*** table, const int* maxs, int numOfColumns, int numOfLines)
+{
+    int s = 0;
+    for (int i = 0; i < numOfColumns; i++) {
+        s += maxs[i];
+    }
+    if (s == 0) {
+        return -1;
+    }
+    for (int i = 0; i < numOfLines; i++) {
+        char* text = (char*)malloc(1000);
+        if (text == NULL) {
+            return -1;
+        }
+        int pos = 0;
+        for (int j = 0; j < numOfColumns; j++) {
+            int d = maxs[i] - (int)strlen(table[i][j]);
+            if (isNumber(table[i][j])) {
+                pos += sprintf(text + pos, "| ");
+                for (int j = 0; j < d; j++) {
+                    pos += sprintf(text + pos, " ");
+                }
+                pos += sprintf(text + pos, "%s ", table[i][j]);
+            } else {
+                pos += sprintf(text + pos, "| ");
+                pos += sprintf(text + pos, "%s ", table[i][j]);
+                for (int j = 0; j < d; j++) {
+                    pos += sprintf(text + pos, " ");
+                }
+            }
+        }
+        sprintf(text + pos, "|");
+        printf("%s", text);
+        printf("\n");
+        free(text);
+    }
+    return 0;
 }

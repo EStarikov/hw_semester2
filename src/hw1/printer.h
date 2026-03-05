@@ -3,7 +3,9 @@
 #include <stdio.h>
 int myGetline(char** line, FILE* file);
 int countWords(const char* line, int len);
-char** getWords(const char* line, int len, int count);
-void maxWord(char** words, int* maxLen, int count);
-void freeWords(char** words, int count);
+char** getWords(const char* line, int len, int numOfColumns);
+void maxWord(char** words, int* maxs, int numOfColumns);
+void freeWords(char** words, int numOfColumns);
 bool isNumber(char* word);
+int addToTable(char**** table, int** maxs, FILE* file, int* numOfColumns);
+void freeTable(char*** table, int numOfColumns, int numOfLines);
