@@ -49,7 +49,7 @@ int countWords(const char* line, int len)
 
 char** getWords(const char* line, int len, int numOfColumns)
 {
-    char** words = (char**)malloc(sizeof(char*) * numOfColumns);
+    char** words = (char**)calloc(numOfColumns, sizeof(char*));
     if (words == NULL) {
         return NULL;
     }
@@ -133,6 +133,9 @@ void maxWord(char** words, int* maxs, int numOfColumns)
         return;
     }
     for (int i = 0; i < numOfColumns; i++) {
+        if (words[i] == NULL) {
+            continue;
+        }
         int l = (int)strlen(words[i]);
         if (l > maxs[i]) {
             maxs[i] = l;
@@ -191,7 +194,7 @@ int addToTable(char**** table, int** maxs, FILE* file, int* numOfColumns)
         l = myGetline(&line, file);
     }
     free(line);
-    return numOfThisLine - 1;
+    return numOfThisLine;
 }
 
 void freeTable(char*** table, int numOfColumns, int numOfLines)
@@ -202,7 +205,33 @@ void freeTable(char*** table, int numOfColumns, int numOfLines)
     free(table);
 }
 
-int print(char*** table, const int* maxs, int numOfColumns, int numOfLines)
+int printGraphic(const int* maxs, int len, int numOfColumns, char s, FILE* file)
+{
+    int l = len + 3 * numOfColumns + 1;
+    char* text = (char*)malloc(l);
+    if (text == NULL) {
+        return -1;
+    }
+    int k = 0;
+    int lp = maxs[k] + 3;
+    for (int i = 1; i < l - 1; i++) {
+        if (lp == i) {
+            text[i] = '+';
+            k++;
+            lp += maxs[k] + 3;
+        } else {
+            text[i] = s;
+        }
+    }
+    text[0] = '+';
+    text[l - 1] = '+';
+    fputs(text, file);
+    fputs("\n", file);
+    free(text);
+    return 0;
+}
+
+int printToFile(char*** table, const int* maxs, int numOfColumns, int numOfLines, FILE* file)
 {
     int s = 0;
     for (int i = 0; i < numOfColumns; i++) {
@@ -212,30 +241,38 @@ int print(char*** table, const int* maxs, int numOfColumns, int numOfLines)
         return -1;
     }
     for (int i = 0; i < numOfLines; i++) {
-        char* text = (char*)malloc(1000);
+        char* text = (char*)malloc(s + 3 * (numOfColumns + 1));
         if (text == NULL) {
             return -1;
         }
         int pos = 0;
         for (int j = 0; j < numOfColumns; j++) {
-            int d = maxs[i] - (int)strlen(table[i][j]);
+            int d = maxs[j] - (int)strlen(table[i][j]);
             if (isNumber(table[i][j])) {
                 pos += sprintf(text + pos, "| ");
-                for (int j = 0; j < d; j++) {
+                for (int k = 0; k < d; k++) {
                     pos += sprintf(text + pos, " ");
                 }
                 pos += sprintf(text + pos, "%s ", table[i][j]);
             } else {
                 pos += sprintf(text + pos, "| ");
                 pos += sprintf(text + pos, "%s ", table[i][j]);
-                for (int j = 0; j < d; j++) {
+                for (int k = 0; k < d; k++) {
                     pos += sprintf(text + pos, " ");
                 }
             }
         }
         sprintf(text + pos, "|");
-        printf("%s", text);
-        printf("\n");
+        if (i == 0) {
+            printGraphic(maxs, s, numOfColumns, '=', file);
+            fputs(text, file);
+            fputs("\n", file);
+            printGraphic(maxs, s, numOfColumns, '=', file);
+        } else {
+            fputs(text, file);
+            fputs("\n", file);
+            printGraphic(maxs, s, numOfColumns, '-', file);
+        }
         free(text);
     }
     return 0;

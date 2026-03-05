@@ -9,3 +9,5 @@ void freeWords(char** words, int numOfColumns);
 bool isNumber(char* word);
 int addToTable(char**** table, int** maxs, FILE* file, int* numOfColumns);
 void freeTable(char*** table, int numOfColumns, int numOfLines);
+int printGraphic(const int* maxs, int len, int numOfColumns, char s, FILE* file);
+int printToFile(char*** table, const int* maxs, int numOfColumns, int numOfLines, FILE* file);
