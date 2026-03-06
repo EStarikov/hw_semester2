@@ -52,11 +52,31 @@ void testGetWorld()
     freeWords(wordsLineWithEmptyWord, 3);
 }
 
+void testMax()
+{
+    int maxs[3] = { 0, 0, 0 };
+    char* table[3][3] = {
+        { "rrrr", "2134", "" },
+        { "er", "eds", "longgggg" },
+        { "423", "fs", "fwff" }
+    };
+    for (int i = 0; i < 3; i++) {
+        maxWord(table[i], maxs, 3);
+    }
+    if (maxs[0] == 4 && maxs[1] == 4 && maxs[2] == 8) {
+        printf("Find length of max word: passed\n");
+    } else {
+        printf("Find length of max word: not passed\n");
+    }
+}
+
 int main()
 {
     printf("Test countWords\n");
     testCountWords();
     printf("Test getWorld\n");
     testGetWorld();
+    printf("Test maxWord\n");
+    testMax();
     return 0;
 }
