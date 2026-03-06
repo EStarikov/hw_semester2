@@ -208,7 +208,7 @@ void freeTable(char*** table, int numOfColumns, int numOfLines)
 int printGraphic(const int* maxs, int len, int numOfColumns, char s, FILE* file)
 {
     int l = len + 3 * numOfColumns + 1;
-    char* text = (char*)malloc(l);
+    char* text = (char*)malloc(l + 1);
     if (text == NULL) {
         return -1;
     }
@@ -225,6 +225,7 @@ int printGraphic(const int* maxs, int len, int numOfColumns, char s, FILE* file)
     }
     text[0] = '+';
     text[l - 1] = '+';
+    text[l] = '\0';
     fputs(text, file);
     fputs("\n", file);
     free(text);
@@ -249,11 +250,11 @@ int printToFile(char*** table, const int* maxs, int numOfColumns, int numOfLines
         for (int j = 0; j < numOfColumns; j++) {
             int d = maxs[j] - (int)strlen(table[i][j]);
             if (isNumber(table[i][j])) {
-                pos += sprintf(text + pos, "| ");
+                pos += sprintf(text + pos, "|");
                 for (int k = 0; k < d; k++) {
                     pos += sprintf(text + pos, " ");
                 }
-                pos += sprintf(text + pos, "%s ", table[i][j]);
+                pos += sprintf(text + pos, " %s ", table[i][j]);
             } else {
                 pos += sprintf(text + pos, "| ");
                 pos += sprintf(text + pos, "%s ", table[i][j]);
