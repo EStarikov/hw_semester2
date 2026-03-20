@@ -48,3 +48,11 @@ void kmpSearch(char* text, char* pattern)
 
     free(pi);
 }
+
+int main()
+{
+    char* text = "AAABABBABBAAAABABBA";
+    char* pattern = "ABBA";
+    kmpSearch(text, pattern);
+    return 0;
+}
