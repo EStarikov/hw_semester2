@@ -23,57 +23,27 @@ void kmpSearch(char* text, char* pattern)
     size_t n = strlen(text);
     size_t m = strlen(pattern);
 
-    if (m == 0) {
-        printf("Образец пуст\n");
-        return;
-    }
-
-    // Выделяем память для префикс-функции
     int* pi = (int*)malloc(m * sizeof(int));
     if (!pi) {
-        printf("Ошибка выделения памяти\n");
         return;
     }
 
-    // Вычисляем префикс-функцию для образца
     prefixFunc(pattern, pi, m);
 
-    // Выводим префикс-функцию для наглядности
-    printf("Образец: %s\n", pattern);
-    printf("Префикс-функция: ");
-    for (size_t i = 0; i < m; i++) {
-        printf("%d ", pi[i]);
-    }
-    printf("\n\n");
+    int j = 0;
 
-    // Поиск вхождений
-    int j = 0; // количество совпавших символов в образце
-
-    printf("Текст: %s\n", text);
-    printf("Поиск образца \"%s\":\n", pattern);
-
-    // Проходим по всему тексту
     for (size_t i = 0; i < n; i++) {
-        // Пока не совпадает и не в начале образца
         while (j > 0 && text[i] != pattern[j])
-            j = pi[j - 1]; // откатываемся по префикс-функции
+            j = pi[j - 1];
 
-        // Если символы совпали
-        if (text[i] == pattern[j])
+        if (text[i] == pattern[j]) {
             j++;
+        }
 
-        // Если нашли полное вхождение
         if (j == m) {
             printf("  Найдено в позиции %zu (индекс с 0)\n", i - m + 1);
-            printf("  Фрагмент: \"%.*s\"\n", (int)m, text + i - m + 1);
-
-            // Продолжаем поиск следующих вхождений
             j = pi[j - 1];
         }
-    }
-
-    if (j == 0 && m > 0) {
-        printf("  Образец не найден\n");
     }
 
     free(pi);
