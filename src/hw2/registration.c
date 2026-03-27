@@ -201,22 +201,22 @@ Node* deleteAVL(Node* node, char* code, bool* err)
     int cmp = strcmp(code, node->code);
 
     if (cmp < 0) {
-        Node* oldLeft = node->left;
+        int oldLeftDiff = node->left->diff;
         Node* newLeft = deleteAVL(node->left, code, err);
         if (*err) {
             return node;
         }
-        if (oldLeft != NULL && (newLeft == NULL || oldLeft->diff != newLeft->diff)) {
+        if (node->left != NULL && (newLeft == NULL || oldLeftDiff != newLeft->diff)) {
             node->diff--;
         }
         node->left = newLeft;
     } else if (cmp > 0) {
-        Node* oldRight = node->right;
+        int oldRightDiff = node->right->diff;
         Node* newRight = deleteAVL(node->right, code, err);
         if (*err) {
             return node;
         }
-        if (oldRight != NULL && (newRight == NULL || oldRight->diff != newRight->diff)) {
+        if (node->right != NULL && (newRight == NULL || oldRightDiff != newRight->diff)) {
             node->diff++;
         }
         node->right = newRight;
