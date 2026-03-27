@@ -255,21 +255,21 @@ void test_split_function()
     char s1[] = "SVO:Москва";
     char code1[100];
     char name1[100];
-    split(s1, code1, name1, sizeof(s1), ":");
+    split(s1, code1, name1, sizeof(s1), ':');
     assert(strcmp(code1, "SVO") == 0);
     assert(strcmp(name1, "Москва") == 0);
 
     char s2[] = "find SVO";
     char com[100];
     char arg[100];
-    split(s2, com, arg, sizeof(s2), " ");
+    split(s2, com, arg, sizeof(s2), ' ');
     assert(strcmp(com, "find") == 0);
     assert(strcmp(arg, "SVO") == 0);
 
     char s3[] = "add SVO:Москва";
     char com2[100];
     char arg2[100];
-    split(s3, com2, arg2, sizeof(s3), " ");
+    split(s3, com2, arg2, sizeof(s3), ' ');
     assert(strcmp(com2, "add") == 0);
     assert(strcmp(arg2, "SVO:Москва") == 0);
 

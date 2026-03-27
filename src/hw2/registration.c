@@ -40,23 +40,15 @@ static int myGetline(char** line, FILE* file)
     return i + 1;
 }
 
-void split(char* s, char* code, char* name, size_t len, char* separator)
+void split(char* s, char* code, char* name, size_t len, char separator)
 {
-    for (size_t i = 0; i < len; i++) {
-        if (s[i] == separator[0]) {
-            if (strlen(separator) == 1) {
-                strncpy(code, s, i);
-                code[i] = '\0';
-                strncpy(name, s + i + 1, len - i - 1);
-                name[len - i - 1] = '\0';
-                return;
-            } else {
-                strncpy(code, s, i);
-                code[i] = '\0';
-                strncpy(name, s + i + 2, len - i - 1);
-                name[len - i - 1] = '\0';
-                return;
-            }
+    for (size_t i = 0; i < len; ++i) {
+        if (s[i] == separator) {
+            strncpy(code, s, i);
+            code[i] = '\0';
+            strncpy(name, s + i + 1, len - i - 1);
+            name[len - i - 1] = '\0';
+            return;
         }
     }
 }
@@ -369,7 +361,7 @@ AVL* readFileToAVL(char* filename)
             free(line);
             return NULL;
         }
-        split(line, code, name, l, ": ");
+        split(line, code, name, l, ':');
         bool err = false;
         tree->root = insertAVL(code, name, tree->root, &err);
         if (err) {
@@ -422,7 +414,7 @@ static void inOrder(Node* node, FILE* output, bool* err, int* n)
         return;
     }
     *n += 1;
-    sprintf(text, "%s: %s", node->code, node->name);
+    sprintf(text, "%s:%s", node->code, node->name);
     fputs(text, output);
     fputs("\n", output);
     free(text);
