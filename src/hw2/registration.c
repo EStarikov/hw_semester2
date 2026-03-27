@@ -164,12 +164,18 @@ static Node* balance(Node* node)
         return node;
     }
     if (node->diff == -2) {
+        if (node->right == NULL) {
+            return node;
+        }
         if (node->right->diff <= 0) {
             return rotateLeft(node);
         } else {
             return bigRotateLeft(node);
         }
     } else if (node->diff == 2) {
+        if (node->left == NULL) {
+            return node;
+        }
         if (node->left->diff >= 0) {
             return rotateRight(node);
         } else {
