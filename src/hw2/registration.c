@@ -246,14 +246,12 @@ Node* deleteAVL(Node* node, char* code, bool* err)
         node->right = newRight;
     } else {
         if (node->left != NULL) {
-            Node* temp = node;
-            node = node->left;
-            free(temp->code);
-            free(temp->name);
-            free(temp);
-            temp = NULL;
-            node->diff = 0;
-            return node;
+            Node* newNode = node->left;
+            free(node->code);
+            free(node->name);
+            free(node);
+            node = NULL;
+            return newNode;
         } else if (node->right != NULL) {
             Node* temp = node;
             node = node->right;
