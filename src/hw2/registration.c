@@ -251,6 +251,7 @@ Node* deleteAVL(Node* node, char* code, bool* err)
             free(temp->code);
             free(temp->name);
             free(temp);
+            temp = NULL;
             node->diff = 0;
             return node;
         } else if (node->right != NULL) {
@@ -259,12 +260,14 @@ Node* deleteAVL(Node* node, char* code, bool* err)
             free(temp->code);
             free(temp->name);
             free(temp);
+            temp = NULL;
             node->diff = 0;
             return node;
         } else {
             free(node->code);
             free(node->name);
             free(node);
+            node = NULL;
             return NULL;
         }
     }
