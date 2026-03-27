@@ -283,8 +283,23 @@ Node* insertAVL(char* code, char* name, Node* node, bool* err)
             *err = true;
             return node;
         }
-        newNode->code = code;
-        newNode->name = name;
+        size_t codeLen = strlen(code);
+        newNode->code = malloc(codeLen + 1);
+        if (newNode->code == NULL) {
+            free(newNode);
+            *err = true;
+            return node;
+        }
+        memcpy(newNode->code, code, codeLen + 1);
+        size_t nameLen = strlen(name);
+        newNode->name = malloc(nameLen + 1);
+        if (newNode->name == NULL) {
+            free(newNode->code);
+            free(newNode);
+            *err = true;
+            return node;
+        }
+        memcpy(newNode->name, name, nameLen + 1);
         newNode->diff = 0;
         newNode->left = NULL;
         newNode->right = NULL;
@@ -357,6 +372,10 @@ AVL* readFileToAVL(char* filename)
             free(line);
             return NULL;
         }
+        free(code);
+        code = NULL;
+        free(name);
+        name = NULL;
         free(line);
         line = NULL;
         l = myGetline(&line, input);
@@ -410,7 +429,7 @@ int saveAVLtoFILE(char* filename, AVL* tree)
     }
 
     bool err = false;
-    unsigned n = 0;
+    int n = 0;
     inOrder(tree->root, output, &err, &n);
 
     fclose(output);
