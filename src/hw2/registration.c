@@ -201,20 +201,22 @@ Node* deleteAVL(Node* node, char* code, bool* err)
     int cmp = strcmp(code, node->code);
 
     if (cmp < 0) {
+        Node* oldLeft = node->left;
         Node* newLeft = deleteAVL(node->left, code, err);
         if (*err) {
             return node;
         }
-        if (node->left != NULL && (newLeft == NULL || node->left->diff != newLeft->diff)) {
+        if (oldLeft != NULL && (newLeft == NULL || oldLeft->diff != newLeft->diff)) {
             node->diff--;
         }
         node->left = newLeft;
     } else if (cmp > 0) {
+        Node* oldRight = node->right;
         Node* newRight = deleteAVL(node->right, code, err);
         if (*err) {
             return node;
         }
-        if (node->right != NULL && (newRight == NULL || node->right->diff != newRight->diff)) {
+        if (oldRight != NULL && (newRight == NULL || oldRight->diff != newRight->diff)) {
             node->diff++;
         }
         node->right = newRight;
@@ -253,14 +255,12 @@ Node* deleteAVL(Node* node, char* code, bool* err)
             node = NULL;
             return newNode;
         } else if (node->right != NULL) {
-            Node* temp = node;
-            node = node->right;
-            free(temp->code);
-            free(temp->name);
-            free(temp);
-            temp = NULL;
-            node->diff = 0;
-            return node;
+            Node* newNode = node->right;
+            free(node->code);
+            free(node->name);
+            free(node);
+            node = NULL;
+            return newNode;
         } else {
             free(node->code);
             free(node->name);
