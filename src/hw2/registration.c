@@ -238,11 +238,12 @@ Node* deleteAVL(Node* node, char* code, bool* err)
             return node;
         }
         strcpy(node->name, min->name);
+        int oldRightDiff = node->right->diff;
         Node* newRight = deleteAVL(node->right, min->code, err);
         if (*err) {
             return node;
         }
-        if (node->right != NULL && (newRight == NULL || node->right->diff != newRight->diff)) {
+        if (node->right != NULL && (newRight == NULL || oldRightDiff != newRight->diff)) {
             node->diff++;
         }
         node->right = newRight;
