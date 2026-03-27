@@ -357,8 +357,6 @@ AVL* readFileToAVL(char* filename)
             free(line);
             return NULL;
         }
-        code = NULL;
-        name = NULL;
         free(line);
         line = NULL;
         l = myGetline(&line, input);
