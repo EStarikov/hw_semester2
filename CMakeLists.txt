@@ -7,3 +7,4 @@ set(CMAKE_C_STANDART_REQUIRED ON)
 option(BUILD_TESTS OFF)
 
 add_subdirectory(src/hw1)
+add_subdirectory(src/hw2)
