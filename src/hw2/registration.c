@@ -401,7 +401,7 @@ const char* contains(Node* node, char* code)
     }
 }
 
-static void inOrder(Node* node, FILE* output, bool* err, unsigned* n)
+static void inOrder(Node* node, FILE* output, bool* err, int* n)
 {
     if (node == NULL) {
         return;
