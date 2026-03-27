@@ -160,6 +160,9 @@ static Node* bigRotateRight(Node* a)
 
 static Node* balance(Node* node)
 {
+    if (node == NULL) {
+        return node;
+    }
     if (node->diff == -2) {
         if (node->right->diff <= 0) {
             return rotateLeft(node);
