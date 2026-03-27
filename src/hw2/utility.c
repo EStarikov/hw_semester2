@@ -48,7 +48,7 @@ int main()
         }
         fgets(userCom, sizeof(userCom), stdin);
         userCom[strcspn(userCom, "\n")] = '\0';
-        split(userCom, com, code, sizeof(userCom), ' ');
+        split(userCom, com, code, sizeof(userCom), " ");
     }
     freeAVL(tree);
     return 0;
