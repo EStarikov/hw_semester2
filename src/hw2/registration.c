@@ -40,15 +40,23 @@ static int myGetline(char** line, FILE* file)
     return i + 1;
 }
 
-void split(char* s, char* code, char* name, size_t len, char separator)
+void split(char* s, char* code, char* name, size_t len, char* separator)
 {
     for (size_t i = 0; i < len; i++) {
-        if (s[i] == separator) {
-            strncpy(code, s, i);
-            code[i] = '\0';
-            strncpy(name, s + i + 1, len - i - 1);
-            name[len - i - 1] = '\0';
-            return;
+        if (s[i] == separator[0]) {
+            if (strlen(separator) == 1) {
+                strncpy(code, s, i);
+                code[i] = '\0';
+                strncpy(name, s + i + 1, len - i - 1);
+                name[len - i - 1] = '\0';
+                return;
+            } else {
+                strncpy(code, s, i);
+                code[i] = '\0';
+                strncpy(name, s + i + 2, len - i - 1);
+                name[len - i - 1] = '\0';
+                return;
+            }
         }
     }
 }
@@ -200,7 +208,7 @@ Node* deleteAVL(Node* node, char* code, bool* err)
 
     int cmp = strcmp(code, node->code);
 
-    if (cmp < 0) {
+    if (cmp < 0 && node->left != NULL) {
         int oldLeftDiff = node->left->diff;
         Node* newLeft = deleteAVL(node->left, code, err);
         if (*err) {
@@ -210,7 +218,7 @@ Node* deleteAVL(Node* node, char* code, bool* err)
             node->diff--;
         }
         node->left = newLeft;
-    } else if (cmp > 0) {
+    } else if (cmp > 0 && node->right != NULL) {
         int oldRightDiff = node->right->diff;
         Node* newRight = deleteAVL(node->right, code, err);
         if (*err) {
@@ -220,7 +228,7 @@ Node* deleteAVL(Node* node, char* code, bool* err)
             node->diff++;
         }
         node->right = newRight;
-    } else if (node->left != NULL && node->right != NULL) {
+    } else if (cmp == 0 && node->left != NULL && node->right != NULL) {
         Node* min = minimum(node->right);
         free(node->code);
         node->code = NULL;
@@ -249,7 +257,7 @@ Node* deleteAVL(Node* node, char* code, bool* err)
             node->diff++;
         }
         node->right = newRight;
-    } else {
+    } else if (cmp == 0) {
         if (node->left != NULL) {
             Node* newNode = node->left;
             free(node->code);
@@ -361,7 +369,7 @@ AVL* readFileToAVL(char* filename)
             free(line);
             return NULL;
         }
-        split(line, code, name, l, ':');
+        split(line, code, name, l, ": ");
         bool err = false;
         tree->root = insertAVL(code, name, tree->root, &err);
         if (err) {

@@ -14,7 +14,7 @@ int main()
     }
     fgets(userCom, sizeof(userCom), stdin);
     userCom[strcspn(userCom, "\n")] = '\0';
-    split(userCom, com, code, sizeof(userCom), ' ');
+    split(userCom, com, code, sizeof(userCom), " ");
     while (strcmp(com, "quit") != 0) {
         if (strcmp(com, "find") == 0) {
             const char* name = contains(tree->root, code);
@@ -26,7 +26,7 @@ int main()
         } else if (strcmp(com, "add") == 0) {
             char realCode[100];
             char realName[100];
-            split(code, realCode, realName, sizeof(code), ':');
+            split(code, realCode, realName, sizeof(code), ":");
             bool err = false;
             tree->root = insertAVL(realCode, realName, tree->root, &err);
             if (err == true) {
