@@ -224,20 +224,22 @@ Node* deleteAVL(Node* node, char* code, bool* err)
         Node* min = minimum(node->right);
         free(node->code);
         node->code = NULL;
-        node->code = malloc(strlen(min->code) + 1);
+        size_t codeLen = strlen(min->code);
+        node->code = malloc(codeLen + 1);
         if (node->code == NULL) {
             *err = true;
             return node;
         }
-        strcpy(node->code, min->code);
+        memcpy(node->code, min->code, codeLen + 1);
         free(node->name);
         node->name = NULL;
-        node->name = malloc(strlen(min->name) + 1);
+        size_t nameLen = strlen(min->name);
+        node->name = malloc(nameLen + 1);
         if (node->name == NULL) {
             *err = true;
             return node;
         }
-        strcpy(node->name, min->name);
+        memcpy(node->name, min->name, nameLen + 1);
         int oldRightDiff = node->right->diff;
         Node* newRight = deleteAVL(node->right, min->code, err);
         if (*err) {
