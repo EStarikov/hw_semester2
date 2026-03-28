@@ -8,3 +8,4 @@ option(BUILD_TESTS OFF)
 
 add_subdirectory(src/hw1)
 add_subdirectory(src/hw2)
+add_subdirectory(src/hw3)
