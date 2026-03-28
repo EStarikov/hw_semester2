@@ -190,7 +190,7 @@ void matchCityWithCapital(Heap** graph, int* states, const unsigned* capitals, s
                     numOfUnmatchedCities--;
                     while ((graph[city])->size != 0) {
                         road = extractMin(graph[city]);
-                        if (states[road->city] != -1) {
+                        if (states[road->city] == -1) {
                             insert(graph[cap], road->city, road->len);
                         }
                         free(road);
@@ -211,7 +211,7 @@ void printStates(const int* states, const unsigned* capitals, size_t n, size_t k
         printf("%u: ", capitals[i]);
         for (size_t j = 0; j < n; ++j) {
             if (states[j] == capitals[i]) {
-                printf("%zu, ", j);
+                printf("%zu ", j);
             }
         }
         printf("\n");
