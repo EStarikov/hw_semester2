@@ -76,11 +76,13 @@ static int insert(Heap* heap, int city, size_t len)
     newRoad->city = city;
     newRoad->len = len;
     ++heap->size;
-    heap->roads = realloc(heap->roads, heap->size * sizeof(Road*));
-    if (heap->roads == NULL) {
+    Road** temp = realloc(heap->roads, heap->size * sizeof(Road*));
+    if (temp == NULL) {
         free(newRoad);
+        free(heap->roads);
         return -1;
     }
+    heap->roads = temp;
     heap->roads[heap->size - 1] = newRoad;
     siftUp(heap, heap->size - 1);
     return 0;
@@ -172,7 +174,7 @@ Heap** readFromFile(char* filename, int** states, unsigned** capitals, size_t* n
     return graph;
 }
 
-void matchCityWithCapital(Heap** graph, int* states, unsigned* capitals, size_t n, size_t k)
+void matchCityWithCapital(Heap** graph, int* states, const unsigned* capitals, size_t n, size_t k)
 {
     size_t numOfUnmatchedCities = n - k;
     while (numOfUnmatchedCities != 0) {
@@ -184,7 +186,7 @@ void matchCityWithCapital(Heap** graph, int* states, unsigned* capitals, size_t 
                 free(road);
                 road = NULL;
                 if (states[city] == -1) {
-                    states[city] = cap;
+                    states[city] = (int)cap;
                     numOfUnmatchedCities--;
                     while ((graph[city])->size != 0) {
                         road = extractMin(graph[city]);
@@ -203,7 +205,7 @@ void matchCityWithCapital(Heap** graph, int* states, unsigned* capitals, size_t 
     }
 }
 
-void printStates(int* states, unsigned* capitals, size_t n, size_t k)
+void printStates(const int* states, const unsigned* capitals, size_t n, size_t k)
 {
     for (size_t i = 0; i < k; ++i) {
         printf("%u: ", capitals[i]);
