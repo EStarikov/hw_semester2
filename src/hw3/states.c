@@ -1,5 +1,4 @@
 #include "states.h"
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -95,30 +94,33 @@ void freeGraph(Heap*** graph, size_t len)
     free(*graph);
 }
 
-Heap** readFromFile(char* filename, int* states, unsigned* capitals, size_t n, size_t k)
+Heap** readFromFile(char* filename, int* states, unsigned* capitals, size_t* n, size_t* k)
 {
-    FILE* input = fopen("filename", "r");
+    FILE* input = fopen(filename, "r");
     if (input == NULL) {
+        printf("file");
         return NULL;
     }
 
-    fscanf(input, "%zu", &n);
-    Heap** graph = malloc(sizeof(Heap) * n);
+    fscanf(input, "%zu", n);
+    Heap** graph = malloc(sizeof(Heap) * (*n));
     if (graph == NULL) {
+        printf("init");
         fclose(input);
         return NULL;
     }
-    states = malloc(sizeof(int) * n);
+    states = malloc(sizeof(int) * (*n));
     if (states == NULL) {
         free(graph);
         fclose(input);
+        printf("states");
         return NULL;
     }
-    for (size_t i = 0; i < n; ++i) {
+    for (size_t i = 0; i < (*n); ++i) {
         graph[i] = initHeap();
         states[i] = -1;
         if (graph[i] == NULL) {
-            freeGraph(graph, i);
+            freeGraph(&graph, i);
             fclose(input);
             return NULL;
         }
@@ -135,27 +137,28 @@ Heap** readFromFile(char* filename, int* states, unsigned* capitals, size_t n, s
         fscanf(input, "%zu", &len);
         err = insert(graph[i], j, len);
         if (err != 0) {
-            freeGraph(graph, n);
+            freeGraph(&graph, (*n));
             fclose(input);
             return NULL;
         }
         err = insert(graph[j], i, len);
         if (err != 0) {
-            freeGraph(graph, n);
+            freeGraph(&graph, (*n));
             fclose(input);
             return NULL;
         }
     }
 
     int num;
-    fscanf(input, "%zu", &k);
-    capitals = malloc(sizeof(unsigned) * k);
+    fscanf(input, "%zu", k);
+    capitals = malloc(sizeof(unsigned) * (*k));
     if (capitals == NULL) {
-        freeGraph(graph, n);
+        freeGraph(&graph, (*n));
         fclose(input);
+        printf("capitals");
         return NULL;
     }
-    for (size_t l = 0; l < k; ++l) {
+    for (size_t l = 0; l < (*k); ++l) {
         fscanf(input, "%d", &num);
         states[num] = num;
         capitals[l] = num;
