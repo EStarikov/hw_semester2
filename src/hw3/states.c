@@ -43,6 +43,9 @@ static void siftDown(Heap* heap, size_t i)
 
 static void siftUp(Heap* heap, size_t i)
 {
+    if (i == 0) {
+        return;
+    }
     while ((heap->roads[i])->len < (heap->roads[(i - 1) / 2])->len) {
         swap(heap->roads[i], heap->roads[(i - 1) / 2]);
         i = (i - 1) / 2;
@@ -59,7 +62,7 @@ static Road* extractMin(Heap* heap)
     }
     Road* min = heap->roads[0];
     heap->roads[0] = heap->roads[heap->size - 1];
-    free(heap->roads[heap->size--]);
+    heap->size--;
     siftDown(heap, 0);
     return min;
 }
@@ -73,8 +76,8 @@ static int insert(Heap* heap, int city, size_t len)
     newRoad->city = city;
     newRoad->len = len;
     ++heap->size;
-    heap = realloc(heap, heap->size * sizeof(Road*));
-    if (heap == NULL) {
+    heap->roads = realloc(heap->roads, heap->size * sizeof(Road*));
+    if (heap->roads == NULL) {
         free(newRoad);
         return -1;
     }
@@ -86,15 +89,16 @@ static int insert(Heap* heap, int city, size_t len)
 void freeGraph(Heap*** graph, size_t len)
 {
     for (size_t i = 0; i < len; ++i) {
-        for (size_t j = 0; j < (*graph[i])->size; ++j) {
-            free((*graph[i])->roads[j]);
+        for (size_t j = 0; j < ((*graph)[i])->size; ++j) {
+            free(((*graph)[i])->roads[j]);
         }
-        free(graph[i]);
+        free(((*graph)[i])->roads);
+        free((*graph)[i]);
     }
     free(*graph);
 }
 
-Heap** readFromFile(char* filename, int* states, unsigned* capitals, size_t* n, size_t* k)
+Heap** readFromFile(char* filename, int** states, unsigned** capitals, size_t* n, size_t* k)
 {
     FILE* input = fopen(filename, "r");
     if (input == NULL) {
@@ -103,13 +107,13 @@ Heap** readFromFile(char* filename, int* states, unsigned* capitals, size_t* n, 
     }
 
     fscanf(input, "%zu", n);
-    Heap** graph = malloc(sizeof(Heap) * (*n));
+    Heap** graph = malloc(sizeof(Heap*) * (*n));
     if (graph == NULL) {
         printf("init");
         fclose(input);
         return NULL;
     }
-    states = malloc(sizeof(int) * (*n));
+    *states = malloc(sizeof(int) * (*n));
     if (states == NULL) {
         free(graph);
         fclose(input);
@@ -118,7 +122,7 @@ Heap** readFromFile(char* filename, int* states, unsigned* capitals, size_t* n, 
     }
     for (size_t i = 0; i < (*n); ++i) {
         graph[i] = initHeap();
-        states[i] = -1;
+        (*states)[i] = -1;
         if (graph[i] == NULL) {
             freeGraph(&graph, i);
             fclose(input);
@@ -151,7 +155,7 @@ Heap** readFromFile(char* filename, int* states, unsigned* capitals, size_t* n, 
 
     int num;
     fscanf(input, "%zu", k);
-    capitals = malloc(sizeof(unsigned) * (*k));
+    *capitals = malloc(sizeof(unsigned) * (*k));
     if (capitals == NULL) {
         freeGraph(&graph, (*n));
         fclose(input);
@@ -160,8 +164,8 @@ Heap** readFromFile(char* filename, int* states, unsigned* capitals, size_t* n, 
     }
     for (size_t l = 0; l < (*k); ++l) {
         fscanf(input, "%d", &num);
-        states[num] = num;
-        capitals[l] = num;
+        (*states)[num] = num;
+        (*capitals)[l] = num;
     }
 
     fclose(input);
@@ -184,7 +188,9 @@ void matchCityWithCapital(Heap** graph, int* states, unsigned* capitals, size_t 
                     numOfUnmatchedCities--;
                     while ((graph[city])->size != 0) {
                         road = extractMin(graph[city]);
-                        insert(graph[cap], road->city, road->len);
+                        if (states[road->city] != -1) {
+                            insert(graph[cap], road->city, road->len);
+                        }
                         free(road);
                         road = NULL;
                     }
@@ -200,7 +206,7 @@ void matchCityWithCapital(Heap** graph, int* states, unsigned* capitals, size_t 
 void printStates(int* states, unsigned* capitals, size_t n, size_t k)
 {
     for (size_t i = 0; i < k; ++i) {
-        printf("%zu: ", i);
+        printf("%u: ", capitals[i]);
         for (size_t j = 0; j < n; ++j) {
             if (states[j] == capitals[i]) {
                 printf("%zu, ", j);
