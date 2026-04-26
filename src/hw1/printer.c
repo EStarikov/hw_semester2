@@ -4,7 +4,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-int myGetline(char** line, FILE* file)
+struct Table {
+    int* maxs;
+    char*** tableOfWords;
+    int numOfColumns;
+    int numOfLines;
+};
+
+Table* createTable()
+{
+    return (Table*)calloc(1, sizeof(Table));
+}
+static int myGetline(char** line, FILE* file)
 {
     int n = 128;
     int i = 0;
@@ -19,10 +30,12 @@ int myGetline(char** line, FILE* file)
         c = fgetc(file);
         if (i == n - 2) {
             n *= 2;
-            *line = (char*)realloc(*line, sizeof(char) * n);
-            if (*line == NULL) {
+            char* tmp = (char*)realloc(*line, sizeof(char) * n);
+            if (tmp == NULL) {
+                free(*line);
                 return -1;
             }
+            *line = tmp;
         }
     }
     (*line)[i] = '\0';
@@ -32,7 +45,7 @@ int myGetline(char** line, FILE* file)
     return i + 1;
 }
 
-int countWords(const char* line, int len)
+static int countWords(const char* line, int len)
 {
     bool quotes = 0;
     int count = 1;
@@ -47,13 +60,12 @@ int countWords(const char* line, int len)
     return count;
 }
 
-char** getWords(const char* line, int len, int numOfColumns)
+static char** getWords(const char* line, int len, int numOfColumns)
 {
     char** words = (char**)calloc(numOfColumns, sizeof(char*));
     if (words == NULL) {
         return NULL;
     }
-    char* word;
     if (len <= 0) {
         words[0] = (char*)malloc(1);
         if (words[0] != NULL) {
@@ -64,9 +76,8 @@ char** getWords(const char* line, int len, int numOfColumns)
             free(words);
             return NULL;
         }
-    } else {
-        word = (char*)malloc(sizeof(char) * len);
     }
+    char* word = (char*)malloc(sizeof(char) * len);
     if (word == NULL) {
         free(words);
         return NULL;
@@ -87,8 +98,8 @@ char** getWords(const char* line, int len, int numOfColumns)
                             free(words[l]);
                             free(words);
                             free(word);
-                            return NULL;
                         }
+                        return NULL;
                     }
                 } else {
                     words[k] = (char*)malloc(1);
@@ -99,8 +110,8 @@ char** getWords(const char* line, int len, int numOfColumns)
                             free(words[l]);
                             free(words);
                             free(word);
-                            return NULL;
                         }
+                        return NULL;
                     }
                 }
                 j = 0;
@@ -119,7 +130,7 @@ char** getWords(const char* line, int len, int numOfColumns)
     return words;
 }
 
-void freeWords(char** words, int numOfColumns)
+static void freeWords(char** words, int numOfColumns)
 {
     for (int i = 0; i < numOfColumns; i++) {
         free(words[i]);
@@ -127,7 +138,7 @@ void freeWords(char** words, int numOfColumns)
     free(words);
 }
 
-void maxWord(char** words, int* maxs, int numOfColumns)
+static void maxWord(char** words, int* maxs, int numOfColumns)
 {
     if (words == NULL) {
         return;
@@ -143,121 +154,127 @@ void maxWord(char** words, int* maxs, int numOfColumns)
     }
 }
 
-bool isNumber(char* word)
+static bool isNumber(char* word)
 {
     char* endptr;
     strtod(word, &endptr);
     return *endptr == '\0';
 }
 
-int addToTable(char**** table, int** maxs, FILE* file, int* numOfColumns)
+void addToTable(Table* myTable, FILE* file)
 {
     char* line = NULL;
     int l = myGetline(&line, file);
-    *numOfColumns = countWords(line, l);
-    *maxs = (int*)calloc(*numOfColumns, sizeof(int));
-    if (*maxs == NULL) {
+    myTable->numOfColumns = countWords(line, l);
+    myTable->maxs = (int*)calloc(myTable->numOfColumns, sizeof(int));
+    if (myTable->maxs == NULL) {
         free(line);
-        line = NULL;
-        return -1;
+        myTable->numOfLines = -1;
+        return;
     }
     int numOfLines = 128;
-    *table = (char***)malloc(sizeof(char**) * numOfLines);
-    if (table == NULL) {
+    myTable->tableOfWords = (char***)malloc(sizeof(char**) * numOfLines);
+    if (myTable->tableOfWords == NULL) {
         free(line);
-        free(*maxs);
-        line = NULL;
-        *maxs = NULL;
-        return -1;
+        free(myTable->maxs);
+        myTable->maxs = NULL;
+        myTable->numOfLines = -1;
+        return;
     }
     int numOfThisLine = 0;
     while (l != -1) {
-        (*table)[numOfThisLine] = getWords(line, l, *numOfColumns);
-        if ((*table)[numOfThisLine] != NULL) {
-            maxWord((*table)[numOfThisLine], *maxs, *numOfColumns);
+        (myTable->tableOfWords)[numOfThisLine] = getWords(line, l, myTable->numOfColumns);
+        if ((myTable->tableOfWords)[numOfThisLine] != NULL) {
+            maxWord((myTable->tableOfWords)[numOfThisLine], myTable->maxs, myTable->numOfColumns);
         } else {
             free(line);
-            free(*maxs);
-            line = NULL;
-            *maxs = NULL;
-            return -1;
+            free(myTable->maxs);
+            myTable->maxs = NULL;
+            myTable->numOfLines = -1;
+            return;
         }
         numOfThisLine += 1;
         if (numOfThisLine == numOfLines - 1) {
             numOfLines *= 2;
-            *table = (char***)realloc(*table, sizeof(char**) * numOfLines);
-            if (*table == NULL) {
-                return -1;
+            char*** tmp = (char***)realloc(myTable->tableOfWords, sizeof(char**) * numOfLines);
+            if (tmp == NULL) {
+                myTable->numOfLines = -1;
+                free(myTable->tableOfWords);
+                return;
             }
+            myTable->tableOfWords = tmp;
         }
         free(line);
         l = myGetline(&line, file);
     }
     free(line);
-    return numOfThisLine;
+    myTable->numOfLines = numOfThisLine;
+    return;
 }
 
-void freeTable(char*** table, int numOfColumns, int numOfLines)
+void freeTable(Table** myTable)
 {
-    for (int i = 0; i < numOfLines; i++) {
-        freeWords(table[i], numOfColumns);
+    free((*myTable)->maxs);
+    for (int i = 0; i < (*myTable)->numOfLines; i++) {
+        freeWords((*myTable)->tableOfWords[i], (*myTable)->numOfColumns);
     }
-    free(table);
+    free((*myTable)->tableOfWords);
+    free(*myTable);
 }
 
-int printGraphic(const int* maxs, int len, int numOfColumns, char s, FILE* file)
+static int printGraphic(const int* maxs, int len, int numOfColumns, char s, FILE* file)
 {
-    int l = len + 3 * numOfColumns + 1;
-    char* text = (char*)malloc(l + 1);
+    int lengthOfOutputLine = len + 3 * numOfColumns + 1;
+    char* text = (char*)malloc(lengthOfOutputLine + 1);
     if (text == NULL) {
         return -1;
     }
-    int k = 0;
-    int lp = maxs[k] + 3;
-    for (int i = 1; i < l - 1; i++) {
-        if (lp == i) {
+    int currentWord = 0;
+    int lenOfCurrentWord = maxs[currentWord] + 3;
+    for (int i = 1; i < lengthOfOutputLine - 1; i++) {
+        if (lenOfCurrentWord == i) {
             text[i] = '+';
-            k++;
-            lp += maxs[k] + 3;
+            currentWord++;
+            lenOfCurrentWord += maxs[currentWord] + 3;
         } else {
             text[i] = s;
         }
     }
     text[0] = '+';
-    text[l - 1] = '+';
-    text[l] = '\0';
+    text[lengthOfOutputLine - 1] = '+';
+    text[lengthOfOutputLine] = '\0';
     fputs(text, file);
     fputs("\n", file);
     free(text);
     return 0;
 }
 
-int printToFile(char*** table, const int* maxs, int numOfColumns, int numOfLines, FILE* file)
+int printToFile(Table* myTable, FILE* file)
 {
     int s = 0;
-    for (int i = 0; i < numOfColumns; i++) {
-        s += maxs[i];
+    for (int i = 0; i < myTable->numOfColumns; i++) {
+        s += myTable->maxs[i];
     }
     if (s == 0) {
         return -1;
     }
-    for (int i = 0; i < numOfLines; i++) {
-        char* text = (char*)malloc(s + 3 * (numOfColumns + 1));
+    for (int i = 0; i < myTable->numOfLines; i++) {
+        char* text = (char*)malloc(s + 3 * (myTable->numOfColumns + 1));
         if (text == NULL) {
             return -1;
         }
         int pos = 0;
-        for (int j = 0; j < numOfColumns; j++) {
-            int d = maxs[j] - (int)strlen(table[i][j]);
-            if (isNumber(table[i][j])) {
+        for (int j = 0; j < myTable->numOfColumns; j++) {
+            int d = myTable->maxs[j] - (int)strlen(myTable->tableOfWords[i][j]);
+            if (isNumber(myTable->tableOfWords[i][j])) {
                 pos += sprintf(text + pos, "|");
                 for (int k = 0; k < d; k++) {
                     pos += sprintf(text + pos, " ");
                 }
-                pos += sprintf(text + pos, " %s ", table[i][j]);
+                pos += sprintf(text + pos, " %s ", myTable->tableOfWords[i][j]);
             } else {
                 pos += sprintf(text + pos, "| ");
-                pos += sprintf(text + pos, "%s ", table[i][j]);
+                pos += sprintf(text + pos, "%s ", myTable->tableOfWords[i][j]);
                 for (int k = 0; k < d; k++) {
                     pos += sprintf(text + pos, " ");
                 }
@@ -265,14 +282,14 @@ int printToFile(char*** table, const int* maxs, int numOfColumns, int numOfLines
         }
         sprintf(text + pos, "|");
         if (i == 0) {
-            printGraphic(maxs, s, numOfColumns, '=', file);
+            printGraphic(myTable->maxs, s, myTable->numOfColumns, '=', file);
             fputs(text, file);
             fputs("\n", file);
-            printGraphic(maxs, s, numOfColumns, '=', file);
+            printGraphic(myTable->maxs, s, myTable->numOfColumns, '=', file);
         } else {
             fputs(text, file);
             fputs("\n", file);
-            printGraphic(maxs, s, numOfColumns, '-', file);
+            printGraphic(myTable->maxs, s, myTable->numOfColumns, '-', file);
         }
         free(text);
     }

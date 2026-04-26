@@ -14,13 +14,15 @@ int main()
         fclose(input);
         return -1;
     }
-    int* maxs;
-    char*** tableOfWords;
-    int numOfColumns;
-    int numOfLines = addToTable(&tableOfWords, &maxs, input, &numOfColumns);
-    printToFile(tableOfWords, maxs, numOfColumns, numOfLines, output);
-    free(maxs);
-    freeTable(tableOfWords, numOfColumns, numOfLines);
+    Table* table = createTable();
+    if (table == NULL) {
+        fclose(input);
+        fclose(output);
+        return 1;
+    }
+    addToTable(table, input);
+    printToFile(table, output);
+    freeTable(&table);
     fclose(input);
     fclose(output);
     return 0;

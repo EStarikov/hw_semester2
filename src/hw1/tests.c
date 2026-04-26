@@ -24,7 +24,7 @@ void testCountWords()
     }
 }
 
-void testGetWorld()
+void testGetWord()
 {
     char simpleLine[] = "fsfs,fsf,df";
     char lineWithQuotes[] = "\"fsf, s\",dfs";
@@ -75,7 +75,7 @@ int main()
     printf("Test countWords\n");
     testCountWords();
     printf("Test getWorld\n");
-    testGetWorld();
+    testGetWord();
     printf("Test maxWord\n");
     testMax();
     return 0;
