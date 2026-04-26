@@ -96,9 +96,9 @@ static char** getWords(const char* line, int len, int numOfColumns)
                     } else {
                         for (int l = 0; l < k; l++) {
                             free(words[l]);
-                            free(words);
-                            free(word);
                         }
+                        free(words);
+                        free(word);
                         return NULL;
                     }
                 } else {
@@ -108,9 +108,9 @@ static char** getWords(const char* line, int len, int numOfColumns)
                     } else {
                         for (int l = 0; l < k; l++) {
                             free(words[l]);
-                            free(words);
-                            free(word);
                         }
+                        free(words);
+                        free(word);
                         return NULL;
                     }
                 }
@@ -209,7 +209,6 @@ void addToTable(Table* myTable, FILE* file)
     }
     free(line);
     myTable->numOfLines = numOfThisLine;
-    return;
 }
 
 void freeTable(Table** myTable)
