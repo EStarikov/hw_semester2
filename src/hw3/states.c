@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Road {
+typedef struct Road {
     int city;
     size_t len;
-};
+} Road;
+
 struct Heap {
     Road** roads;
     size_t size;
