@@ -4,12 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Node {
+typedef struct Node {
     char* code;
     char* name;
     int diff; // h(left) - h(right)
-    Node* left;
-    Node* right;
+    struct Node* left;
+    struct Node* right;
+} Node;
+
+struct Dictionary {
+    Node* root;
 };
 
 static int myGetline(char** line, FILE* file)
@@ -53,13 +57,9 @@ void split(char* s, char* code, char* name, size_t len, char separator)
     }
 }
 
-static AVL* initAVL()
+static Dictionary* initAVL()
 {
-    AVL* tree = malloc(sizeof(AVL));
-    if (tree != NULL) {
-        tree->root = NULL;
-    }
-    return tree;
+    return calloc(1, sizeof(Dictionary));
 }
 
 static void cleanTree(Node* node)
@@ -74,7 +74,8 @@ static void cleanTree(Node* node)
     free(node->name);
     free(node);
 }
-void freeAVL(AVL* tree)
+
+void freeDictionary(Dictionary* tree)
 {
     cleanTree(tree->root);
     free(tree);
@@ -192,7 +193,8 @@ static Node* minimum(Node* node)
     }
     return minimum(node->left);
 }
-Node* deleteAVL(Node* node, char* code, bool* err)
+
+static Node* deleteAVL(Node* node, char* code, bool* err)
 {
     if (node == NULL) {
         return node;
@@ -275,7 +277,13 @@ Node* deleteAVL(Node* node, char* code, bool* err)
     return balance(node);
 }
 
-Node* insertAVL(char* code, char* name, Node* node, bool* err)
+Dictionary* delete(Dictionary* dictionary, char* code, bool* err)
+{
+    dictionary->root = deleteAVL(dictionary->root, code, err);
+    return dictionary;
+}
+
+static Node* insertAVL(char* code, char* name, Node* node, bool* err)
 {
     if (node == NULL) {
         Node* newNode = calloc(1, sizeof(Node));
@@ -332,13 +340,19 @@ Node* insertAVL(char* code, char* name, Node* node, bool* err)
     return balance(node);
 }
 
-AVL* readFileToAVL(char* filename)
+Dictionary* insert(char* code, char* name, Dictionary* dictionary, bool* err)
+{
+    dictionary->root = insertAVL(code, name, dictionary->root, err);
+    return dictionary;
+}
+
+Dictionary* readFileToDictionary(char* filename)
 {
     FILE* input = fopen(filename, "r");
     if (input == NULL) {
         return NULL;
     }
-    AVL* tree = initAVL();
+    Dictionary* tree = initAVL();
     if (tree == NULL) {
         fclose(input);
         return NULL;
@@ -349,14 +363,14 @@ AVL* readFileToAVL(char* filename)
         char* code = malloc(l + 1);
         if (code == NULL) {
             fclose(input);
-            freeAVL(tree);
+            freeDictionary(tree);
             free(line);
             return NULL;
         }
         char* name = malloc(l + 1);
         if (name == NULL) {
             fclose(input);
-            freeAVL(tree);
+            freeDictionary(tree);
             free(code);
             free(line);
             return NULL;
@@ -366,7 +380,7 @@ AVL* readFileToAVL(char* filename)
         tree->root = insertAVL(code, name, tree->root, &err);
         if (err) {
             fclose(input);
-            freeAVL(tree);
+            freeDictionary(tree);
             free(code);
             free(name);
             free(line);
@@ -385,7 +399,7 @@ AVL* readFileToAVL(char* filename)
     return tree;
 }
 
-const char* contains(Node* node, char* code)
+static const char* containsAVL(Node* node, char* code)
 {
     if (node == NULL) {
         return NULL;
@@ -393,12 +407,17 @@ const char* contains(Node* node, char* code)
 
     int cmp = strcmp(code, node->code);
     if (cmp < 0) {
-        return contains(node->left, code);
+        return containsAVL(node->left, code);
     } else if (cmp > 0) {
-        return contains(node->right, code);
+        return containsAVL(node->right, code);
     } else {
         return node->name;
     }
+}
+
+const char* contains(Dictionary* dictionary, char* code)
+{
+    return containsAVL(dictionary->root, code);
 }
 
 static void inOrder(Node* node, FILE* output, bool* err, int* n)
@@ -421,7 +440,7 @@ static void inOrder(Node* node, FILE* output, bool* err, int* n)
     inOrder(node->right, output, err, n);
 }
 
-int saveAVLtoFILE(char* filename, AVL* tree)
+int saveDictionarytoFile(char* filename, Dictionary* tree)
 {
     FILE* output = fopen(filename, "w");
     if (output == NULL) {

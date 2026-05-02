@@ -2,15 +2,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef struct Node Node;
-typedef struct AVL {
-    Node* root;
-} AVL;
+typedef struct Dictionary Dictionary;
 
+// разделитель строк
 void split(char* s, char* code, char* name, size_t len, char separator);
-AVL* readFileToAVL(char* filename);
-Node* deleteAVL(Node* node, char* code, bool* err);
-Node* insertAVL(char* code, char* name, Node* node, bool* err);
-const char* contains(Node* node, char* code);
-void freeAVL(AVL* tree);
-int saveAVLtoFILE(char* filename, AVL* tree);
+
+// считывает файл в словарь
+Dictionary* readFileToDictionary(char* filename);
+
+// удаляет элемент из словаря
+Dictionary* delete(Dictionary* dictionary, char* code, bool* err);
+
+// добавляет элемент в словарь
+Dictionary* insert(char* code, char* name, Dictionary* dictionary, bool* err);
+
+// проверяет наличие элемента в словаре
+const char* contains(Dictionary* dictionary, char* code);
+
+// освобождает словарь
+void freeDictionary(Dictionary* dictionary);
+
+// сохраняет словарь в файл
+int saveDictionarytoFile(char* filename, Dictionary* dictionary);

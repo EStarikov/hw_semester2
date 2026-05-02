@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void test_empty_tree()
+void testEmptyTree()
 {
     printf("Тест 1: Пустое дерево... ");
 
@@ -24,7 +24,7 @@ void test_empty_tree()
     printf("OK\n");
 }
 
-void test_single_insert()
+void testSingleInsert()
 {
     printf("Тест 2: Вставка одного элемента... ");
 
@@ -53,7 +53,7 @@ void test_single_insert()
     printf("OK\n");
 }
 
-void test_multiple_insert()
+void testMultipleInsert()
 {
     printf("Тест 3: Вставка нескольких элементов... ");
 
@@ -89,7 +89,7 @@ void test_multiple_insert()
     printf("OK\n");
 }
 
-void test_delete()
+void testDelete()
 {
     printf("Тест 4: Удаление элемента... ");
 
@@ -131,7 +131,7 @@ void test_delete()
     printf("OK\n");
 }
 
-void test_insert_duplicate()
+void testInsertDuplicate()
 {
     printf("Тест 5: Вставка дубликата... ");
 
@@ -164,7 +164,7 @@ void test_insert_duplicate()
     printf("OK\n");
 }
 
-void test_delete_nonexistent()
+void testDeleteNonexistent()
 {
     printf("Тест 6: Удаление несуществующего элемента... ");
 
@@ -191,7 +191,7 @@ void test_delete_nonexistent()
     printf("OK\n");
 }
 
-void test_delete_empty()
+void testDeleteEmpty()
 {
     printf("Тест 7: Удаление из пустого дерева... ");
 
@@ -207,7 +207,7 @@ void test_delete_empty()
     printf("OK\n");
 }
 
-void test_save_and_load()
+void testSaveAndLoad()
 {
     printf("Тест 8: Сохранение в файл и чтение... ");
 
@@ -248,7 +248,7 @@ void test_save_and_load()
     printf("OK\n");
 }
 
-void test_split_function()
+void testSplitFunction()
 {
     printf("Тест 9: Функция split... ");
 
@@ -276,7 +276,7 @@ void test_split_function()
     printf("OK\n");
 }
 
-void test_read_nonexistent_file()
+void testReadNonexistent_file()
 {
     printf("Тест 10: Чтение из несуществующего файла... ");
 
@@ -286,7 +286,7 @@ void test_read_nonexistent_file()
     printf("OK\n");
 }
 
-void test_save_empty_tree()
+void testSaveEmptyTree()
 {
     printf("Тест 11: Сохранение пустого дерева... ");
 
@@ -307,7 +307,7 @@ void test_save_empty_tree()
     printf("OK\n");
 }
 
-void test_many_operations()
+void testManyOperations()
 {
     printf("Тест 12: Большое количество операций... ");
 
@@ -356,18 +356,18 @@ int main()
 {
     printf("\n=== Тестирование AVL-дерева ===\n\n");
 
-    test_empty_tree();
-    test_single_insert();
-    test_multiple_insert();
-    test_delete();
-    test_insert_duplicate();
-    test_delete_nonexistent();
-    test_delete_empty();
-    test_save_and_load();
-    test_split_function();
-    test_read_nonexistent_file();
-    test_save_empty_tree();
-    test_many_operations();
+    testTmptyTree();
+    testSingleInsert();
+    testMultipleInsert();
+    testDelete();
+    testInsertDuplicate();
+    testDeleteNonexistent();
+    testDeleteEmpty();
+    testSaveAndLoad();
+    testSplitFunction();
+    testReadNonexistent_file();
+    testSaveEmptyTree();
+    testManyOperations();
 
     printf("\n=== Все тесты пройдены успешно! ===\n");
     return 0;
