@@ -449,7 +449,7 @@ int saveDictionarytoFile(char* filename, Dictionary* dictionary)
 
     bool err = false;
     int n = 0;
-    inOrde(dictionary->root, output, &err, &n);
+    inOrder(dictionary->root, output, &err, &n);
 
     fclose(output);
 
