@@ -15,6 +15,7 @@ Table* createTable()
 {
     return (Table*)calloc(1, sizeof(Table));
 }
+
 static int myGetline(char** line, FILE* file)
 {
     int n = 128;

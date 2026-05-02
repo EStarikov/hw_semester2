@@ -4,7 +4,15 @@
 #include <stdio.h>
 
 typedef struct Table Table;
+
+// создает таблицу
 Table* createTable();
-void addToTable(Table* myTable, FILE* file); // считывает из файла и добавляет в таблицу
-void freeTable(Table** myTable); // освобождает таблицу
-int printToFile(Table* myTable, FILE* file); // печатает из таблицы в файл
+
+// считывает из файла и добавляет в таблицу
+void addToTable(Table* myTable, FILE* file);
+
+// освобождает таблицу
+void freeTable(Table** myTable);
+
+// печатает из таблицы в файл
+int printToFile(Table* myTable, FILE* file);
