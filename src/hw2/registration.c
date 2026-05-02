@@ -75,10 +75,10 @@ static void cleanTree(Node* node)
     free(node);
 }
 
-void freeDictionary(Dictionary* tree)
+void freeDictionary(Dictionary* dictionary)
 {
-    cleanTree(tree->root);
-    free(tree);
+    cleanTree(dictionary->root);
+    free(dictionary);
 }
 
 static Node* rotateLeft(Node* a)
@@ -440,7 +440,7 @@ static void inOrder(Node* node, FILE* output, bool* err, int* n)
     inOrder(node->right, output, err, n);
 }
 
-int saveDictionarytoFile(char* filename, Dictionary* tree)
+int saveDictionarytoFile(char* filename, Dictionary* dictionary)
 {
     FILE* output = fopen(filename, "w");
     if (output == NULL) {
@@ -449,7 +449,7 @@ int saveDictionarytoFile(char* filename, Dictionary* tree)
 
     bool err = false;
     int n = 0;
-    inOrder(tree->root, output, &err, &n);
+    inOrde(dictionary->root, output, &err, &n);
 
     fclose(output);
 
